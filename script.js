@@ -116,3 +116,58 @@ var mySingleton = (function(){
 var singleA = mySingleton.getInstance();
 var singleB = mySingleton.getInstance();
 console.log( singleA.getRandomNumber() === singleB.getRandomNumber() );
+
+
+
+
+
+//========== The Observer Pattern
+// A subject maintains a list of objects (observers) which it depends on. The subject notifies the observers of any state changes. The subject facilitates the addition and subtraction of observers.
+
+var Subject = function() {
+  let observers = [];
+  return {
+    subscribeObserver(observer) {
+      observers.push(observer);
+    },
+    unsubscribeObserver(observer) {
+      var index = observers.indexOf(observer);
+      if (index > -1) {
+        observers.splice(index, 1);
+      }
+    },
+    notifyObserver(observer) {
+      var index = observers.indexOf(observer);
+      if (index > -1) {
+        observers[index].notify(index);
+      }
+    },
+    notifyAllObservers() {
+      observers.forEach(function(observer){
+        return observer.notify()
+      });
+    }
+  }
+}
+
+var Observer = function(number) {
+  return {
+    notify() {
+      console.log(`Observer ${number} is notified!`);
+    }
+  }
+}
+
+var subject = new Subject();
+
+var observer1 = new Observer(1);
+var observer2 = new Observer(2);
+var observer3 = new Observer(3);
+
+subject.subscribeObserver(observer1);
+subject.subscribeObserver(observer2);
+
+subject.notifyObserver(observer1);
+subject.unsubscribeObserver(observer1);
+
+subject.notifyAllObservers();
