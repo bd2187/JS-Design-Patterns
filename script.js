@@ -1,4 +1,6 @@
 //========== The Prototype Pattern
+// Creates objects based on a template of an existing object.
+// Objects delegating to other objects.
 var vehicle = {
   make: '<Enter Vehicle Make>',
   model: '<Enter Model>',
@@ -32,3 +34,47 @@ fordMustang.year = 2018;
 fordMustang.plate = 'BBB 321';
 fordMustang.color = 'Grey';
 console.log( fordMustang.summary() );
+
+
+
+
+
+//========== The Singleton Pattern
+// Limits the number of instances of a particular object to just one.
+var mySingleton = (function(){
+  // Instance stores a reference to the Singleton
+  var instance;
+
+  function init() { // Singleton
+    // Private methods and variables
+    var privateVariable = "Private Variable";
+    var privateRandomNumber = Math.random();
+    function privateMethod() {
+      console.log('Private method');
+    }
+
+    return { // Public methods and variables
+      publicMethod() {
+        console.log('Public method');
+      },
+      publicProperty: 'Public property',
+      getRandomNumber() {
+        return privateRandomNumber;
+      }
+    };
+  } // end init()
+
+  return {
+    // Get the Singleton instance if one exists or create one if it doesn't
+    getInstance() {
+      if (!instance) {
+        instance = init();
+      }
+      return instance;
+    }
+  };
+})();
+
+var singleA = mySingleton.getInstance();
+var singleB = mySingleton.getInstance();
+console.log( singleA.getRandomNumber() === singleB.getRandomNumber() );
