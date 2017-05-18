@@ -28,13 +28,30 @@ mazdaMX5.color = 'Ceramic Metallic';
 console.log( mazdaMX5.summary() );
 
 var fordMustang = Object.create(vehicle);
-fordMustang.make = 'Ford';
+// fordMustang.make = 'Ford';
 fordMustang.model = 'Mustang';
 fordMustang.year = 2018;
 fordMustang.plate = 'BBB 321';
 fordMustang.color = 'Grey';
 console.log( fordMustang.summary() );
 
+
+
+
+//========== The Constructor Pattern
+// Imitates the use of classes from other languages. JS has no classes. The 'new' keyword creates a link to a function's prototype. The 'this' keyword will refer to the new object if the 'class' isn't explicitly returning a value.
+function Car(model, year, miles) {
+  this.model = model;
+  this.year = year;
+  this.miles = miles;
+}
+
+Car.prototype.toString = function() {
+  return `${this.model} has done ${this.miles} miles`;
+}
+
+var camry = new Car('Toyota Camry', 2000, 100000);
+var corolla = new Car('Toyota Corolla', 2002, 80000);
 
 
 
