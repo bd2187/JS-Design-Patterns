@@ -39,6 +39,27 @@ console.log( fordMustang.summary() );
 
 
 
+//========== The Module Pattern
+// Encapsulates private data. Wraps public and private data while preventing any leakage of private data into the global scope. Public data has closure over private data.
+var namespace = (function(){
+  var privateVar = 0;
+  var privateMethod = function(foo) {
+    console.log(foo);
+  };
+
+  return {
+    publicVar: 'foo', // public variable
+    publicFunction(bar) { // public function utilizing private contents
+      privateVar++;
+      privateMethod(bar)
+    }
+  }
+})();
+
+
+
+
+
 //========== The Singleton Pattern
 // Limits the number of instances of a particular object to just one.
 var mySingleton = (function(){
