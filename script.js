@@ -17,8 +17,8 @@ var vehicle = {
     `
   }
 }
-// 'vehicle' is the prototype for 'yourCar'
-// 'yourCar' can delegate to 'vehicles' properties
+// 'vehicle' is the prototype for 'mazdaMX5' and 'fordMustang'
+// These objects can delegate to 'vehicles' properties
 var mazdaMX5 = Object.create(vehicle);
 mazdaMX5.make = 'Mazda';
 mazdaMX5.model = 'MX5';
@@ -363,3 +363,100 @@ var myBigTruck = truckFactory.createVehicle({
 });
 console.log( myBigTruck instanceof Truck );
 console.log( myBigTruck );
+
+
+
+
+
+//========== The Mixin Pattern
+// In traditional programming languages such as C++ and Lisp, Mixins are classes which offer functionality that can be easily inherited by a sub-class or group of sub-classes for the purpose of function re-use.
+// Collecting functionality through extension/augmentation
+// Function re-use
+
+//=== Sub-classing without classes. Only objects:
+var Person = { // "super class"
+  firstName(firstName) {
+    return this.firstName = firstName;
+  },
+  lastName(lastName) {
+    return this.lastName = lastName;
+  },
+  gender: 'male'
+}
+
+var clark = Object.create(Person);
+clark.firstName('Clark');
+clark.lastName('Kent');
+
+var SuperHero = Object.create(Person); // "sub class"
+SuperHero.powers = function(powers = []) {
+  return this.powers = powers;
+}
+
+var superman = Object.create(SuperHero);
+superman.firstName('Clark');
+superman.lastName('Kent');
+superman.powers(['flight', 'heat-vision']);
+
+
+// === Mixin Example:
+var Car = {
+  model(model) {
+    return this.model = model || 'no model provided';
+  },
+  color(color) {
+    return this.color = color || 'no color provided';
+  }
+}
+
+var Mixin = {
+  driveForward() {
+    console.log('drive forward');
+  },
+  driveBackward() {
+    console.log('drive backward');
+  },
+  driveSideways() {
+    console.log('drive sideways');
+  }
+}
+
+// Extend an existing object with a method from another
+function augment(...objs) {
+  var [receivingObj, givingObj] = objs;
+  // only provide certain methods
+  if (givingObj) {
+    for (let i = 2, len = objs.length; i < len; i++) {
+      receivingObj[objs[i]] = givingObj[objs[i]];
+    }
+  }
+  // provide all methods
+  else {
+    for (var methodName in givingObj) {
+      // check to make sure receiving class doesn't have a method of the same
+      // name as the one currrently being processed
+      if ( !Object.hasOwnProperty.call(receivingObj, methodName) ) {
+        receivingObj[methodName] = givingObj[methodName];
+      }
+    }
+  }
+}
+
+// Augment the Car constructor to include "driveForward" and "driveBackward"
+augment(Car, Mixin, "driveForward", "driveBackward");
+
+// Create a new car
+var myCar = Object.create(Car);
+myCar.model('MX-5');
+myCar.color('Ceramic Metallic');
+
+// Test to make sure we have access to new methods
+myCar.driveForward();
+myCar.driveBackward();
+
+
+augment(Car, Mixin, 'driveSideways');
+var myTruck = Object.create(Car);
+myTruck.model('Ford F-150 Raptor');
+myTruck.color('Black');
+myTruck.driveSideways();
