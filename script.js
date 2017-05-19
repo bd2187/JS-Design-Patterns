@@ -28,7 +28,7 @@ mazdaMX5.color = 'Ceramic Metallic';
 console.log( mazdaMX5.summary() );
 
 var fordMustang = Object.create(vehicle);
-// fordMustang.make = 'Ford';
+fordMustang.make = 'Ford';
 fordMustang.model = 'Mustang';
 fordMustang.year = 2018;
 fordMustang.plate = 'BBB 321';
@@ -227,3 +227,139 @@ carManager.execute = function(...args) {
 console.log( carManager.execute( "arrangeViewing", "Ferrari", "14523" ) );
 console.log( carManager.execute( "requestInfo", "Ford Mondeo", "54323" ) );
 console.log( carManager.execute( "buyVehicle", "Ford Escort", "34232" ) );
+
+
+
+
+
+//========== The Facade Pattern
+// Facade defines a higher-level interface that makes the subsystem easier to use/read.
+// Exposes only what is necessary and presents a cleaner and easy-to-use interface.
+var mod = (function(){
+  var _private = {
+    i: 5,
+    get() {
+      console.log(`current value: ${this.i}`);
+    },
+    set(val) {
+      this.i = val;
+    },
+    run() {
+      console.log('running');
+    },
+    jump() {
+      console.log('jumping');
+    }
+  };
+
+  return {
+    facade(args) {
+      _private.set(args.val);
+      _private.get();
+      if (args.run) {
+        _private.run();
+      }
+    }
+  };
+})();
+// This interface hides the complex functionality above ^^
+mod.facade( {run: true, val: 10} );
+
+
+
+
+
+//========== The Factory Pattern
+// Define an interface for creating an object, but let subclasses decide which class to instantiate. Factory Method lets a class defer instantiation to subclasses.
+const Car2 = {
+  doors(doors){
+    return doors || 4;
+  },
+  state(state){
+    return state || 'brand new';
+  },
+  color(color){
+    return color || 'silver';
+  }
+}
+
+const Truck2 = {
+  state(state){
+    return state || 'used';
+  },
+  wheelSize(wheelSize){
+    return wheelSize || 'large';
+  },
+  color(color){
+    return color || 'blue';
+  }
+}
+
+// defines new cars
+function Car(options) {
+  // defaults
+  this.doors = options.doors || 4;
+  this.state = options.state || 'brand new';
+  this.color = options.color || 'silver';
+}
+
+// defines new trucks
+function Truck(options) {
+  this.state = options.state || 'used';
+  this.wheelSize = options.wheelsize || 'large';
+  this.color = options.color || 'blue';
+}
+
+function VehicleFactory() {};
+// Define the prototypes and utilities for this factory
+VehicleFactory.prototype.vehicleClass = Car;
+
+// Factory method for creating new Vehicle instances
+VehicleFactory.prototype.createVehicle = function(options) {
+  switch(options.vehicleType) {
+    case "car":
+      this.vehicleClass = Car;
+      break;
+    case "truck":
+      this.vehicleClass = Truck;
+      break;
+  }
+  // defaults to VehicleFactory.prototype.vehicleClass (Car)
+  return new this.vehicleClass(options);
+};
+
+// Create an instance of our factory that makes cars
+var carFactory = new VehicleFactory();
+var car = carFactory.createVehicle({
+            vehicleType: "car",
+            color: "yellow",
+            doors: 6
+});
+
+// Test to confirm our car was created using the vehicleClass/prototype Car
+console.log(car instanceof Car);
+console.log(car);
+
+var movingTruck = carFactory.createVehicle({
+                    vehicleType: "truck",
+                    state: "like new",
+                    color: "red",
+                    wheelSize: "small"
+});
+
+// // Test to confirm our truck was created with the vehicleClass/prototype Truck
+console.log( movingTruck instanceof Truck );
+console.log(movingTruck);
+
+function TruckFactory() {};
+TruckFactory.prototype = new VehicleFactory();
+TruckFactory.prototype.vehicleClass = Truck;
+var truckFactory = new TruckFactory();
+
+var myBigTruck = truckFactory.createVehicle({
+                  state: "omg.. so bad.",
+                  color: "pink",
+                  wheelSize: "so big"
+});
+console.log( myBigTruck instanceof Truck );
+console.log( myBigTruck );
