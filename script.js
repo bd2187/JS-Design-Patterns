@@ -171,3 +171,59 @@ subject.notifyObserver(observer1);
 subject.unsubscribeObserver(observer1);
 
 subject.notifyAllObservers();
+
+
+
+
+
+//========== The Mediator Pattern
+// Exposes a unified interface through which the different parts of a system may communicate.
+// Mediator: an object that coordinates interactions between multiple objects.
+// Think of air traffic control system.
+var mediatior = {};
+
+var orgChart = {
+  addNewEmployee() {
+    // getEmployeeDetail provides a view that users interact with
+    var employeeDetail = this.getEmployeeDetail();
+
+    // when the employee detail is complete, the mediator (the 'orgchart' object) decides what should happen next
+    employeeDetail.on('complete', function(employee){
+      // set up additional objects that have additional events, which are used
+      // by the mediator to do additional things
+      var managerSelector = this.selectManager(employee);
+      managerSelector.on('save', function(employee){
+        employee.save();
+      });
+    });
+  }
+}
+
+
+
+
+
+//========== The Command Pattern
+// Provides us a means to separate the responsibilities of issuing commands from anything executing commands, delegating this responsibility to different objects instead.
+// Command objects allow for loosely coupled systems by separating the objects that issue a request from the objects that actually process the request.
+
+var carManager = {
+  requestInfo(model, id) { // request information
+    return `The information for ${model} with ID ${id} is foobar`;
+  },
+  buyVehicle(model, id){ // purchase the car
+    return `You have successfully purchase Item ${id}, a ${model}`;
+  },
+  arrangeViewing(model, id) { // arrange a viewing
+    return `You have successfully booked a viewing of ${model} (${id})`;
+  }
+}
+
+carManager.execute = function(...args) {
+  var [fn, arg1, arg2] = args;
+  return carManager[fn].apply(carManager, [arg1, arg2]);
+};
+
+console.log( carManager.execute( "arrangeViewing", "Ferrari", "14523" ) );
+console.log( carManager.execute( "requestInfo", "Ford Mondeo", "54323" ) );
+console.log( carManager.execute( "buyVehicle", "Ford Escort", "34232" ) );
