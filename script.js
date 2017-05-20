@@ -1,3 +1,5 @@
+"use strict"
+
 //========== The Prototype Pattern
 // Creates objects based on a template of an existing object.
 // Objects delegating to other objects.
@@ -5,7 +7,7 @@ var vehicle = {
   make: '<Enter Vehicle Make>',
   model: '<Enter Model>',
   year: '<Enter Year>',
-  plate: 000,
+  plate: "000",
   color: '<Enter Color>',
   summary: function summary() {
     return `
@@ -460,3 +462,90 @@ var myTruck = Object.create(Car);
 myTruck.model('Ford F-150 Raptor');
 myTruck.color('Black');
 myTruck.driveSideways();
+
+
+
+
+
+//========== The Decorator Pattern
+// The Decorator pattern isn't heavily tied to how objects are created but instead focuses on the problem of extending their functionality. Rather than just relying on prototypal inheritance, we work with a single base object and progressively add decorator objects which provide the additional capabilities.
+
+// They can be used to modify existing systems where we wish to add additional features to objects without the need to heavily modify the underlying code using them.
+const AnotherVehicle = {
+  vehicleType(vehicleType) {
+    return this.vehicleType = vehicleType || 'car';
+  },
+  model(model) {
+    return this.model = "default";
+  },
+  license(license) {
+    return this.license = "00000-000"
+  }
+}
+
+// Test instance for a basic vehicle
+const testInstance = Object.create(AnotherVehicle);
+testInstance.vehicleType('car');
+console.log(testInstance);
+
+// New instance of vehicle, to be decorated
+const truck = Object.create(AnotherVehicle);
+truck.setModel = function(modelName) {
+  return this.model = modelName;
+}
+truck.setColor = function(color) {
+  return this.color = color;
+}
+
+// Test the value setters and value assignment works correctly
+truck.setModel("CAT");
+truck.setColor("blue");
+console.log(truck);
+
+// Demonstrate "vehicle" is still unaltered
+var secondInstance = Object.create(AnotherVehicle);
+console.log(secondInstance);
+
+
+// === Decorating Objects with Multiple Decorators:
+// Object to decorate
+const Macbook = {
+  cost(){
+    return this.cost = 997;
+  },
+  screenSize(){
+    return this.screenSize = 11.6;
+  }
+}
+
+// Decorator 1
+function memory(macbook) {
+  var v = macbook.cost();
+  macbook.cost = function() {
+    return v + 75;
+  }
+}
+
+// Decorator 2
+function engraving(macbook) {
+  var v = macbook.cost();
+  macbook.cost = function() {
+    return v + 200;
+  }
+}
+
+// Decorator 3
+function insurance(macbook) {
+  var v = macbook.cost();
+  macbook.cost = function() {
+    return v + 250;
+  }
+}
+
+var mb = Object.create(Macbook);
+memory(mb);
+engraving(mb);
+insurance(mb);
+
+console.log(mb.cost(), mb.screenSize());
+// Our decorators are overriding Macbook's cost() function to return the current price of the Macbook plus the cost of upgrades.
