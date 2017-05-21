@@ -549,3 +549,159 @@ insurance(mb);
 
 console.log(mb.cost(), mb.screenSize());
 // Our decorators are overriding Macbook's cost() function to return the current price of the Macbook plus the cost of upgrades.
+
+
+
+
+
+//========== The Flyweight Pattern
+// Optimizes code that is repetitive, slow and inefficiently shares data.
+// Minimizes the use of memory in an application by sharing as much data as possible with related objects.
+// Can involve taking similar objects used by a number of objects and placing this data into a single external object.
+// Intrinsic and Extrinsic states
+// Objects with the same intrinsic data can be replaced with a single shared object created by a factory method.
+
+// === Prior to Flyweight Patten
+const Book = {
+  id(id) {
+    return this.id = id;
+  },
+  title(title) {
+    return this.title = title;
+  },
+  author(author) {
+    return this.author = author;
+  },
+  genre(genre){
+    return this.genre = genre;
+  },
+  pageCount(pageCount) {
+    return this.pageCount = pageCount;
+  },
+  publisherID(publisherID){
+    return this.publisherID = publisherID;
+  },
+  ISBN(ISBN) {
+    return this.ISBN = ISBN;
+  },
+  checkoutDate(checkoutDate) {
+    return this.checkoutDate = checkoutDate;
+  },
+  checkoutMember(checkoutMember) {
+    return this.checkoutMember = checkoutMember;
+  },
+  dueReturnDate(dueReturnDate) {
+    return this.dueReturnDate = dueReturnDate;
+  },
+  availability(availability) {
+    return this.availability = availability;
+  }
+};
+
+
+const BookMethods = Object.create(Book);
+BookMethods.getTitle = function() { return this.title; };
+BookMethods.getAuthor = function() { return this.author; };
+BookMethods.getISBN = function() { return this.ISBN; };
+BookMethods.updateCheckoutStatus = function(bookID, newStatus, checkoutDate,
+  checkoutMember, newReturnDate) {
+    this.id = bookID;
+    this.availability = newStatus;
+    this.cechkoutDate = checkoutDate;
+    this.checkoutMember = checkoutMember;
+    this.dueReturnDate = newReturnDate;
+};
+BookMethods.extendCheckoutPeriod = function(bookID, newReturnDate) {
+  this.id = bookID;
+  this.dueReturnDate = newReturnDate;
+};
+BookMethods.isPastDue = function(bookID) {
+  var currentDate = new Date();
+  return currentDate.getTime() > Date.parse(this.dueReturnDate);
+};
+
+
+// === Flyweight Optimized Version
+const Book2 = {
+  title(title) {
+    return this.title = title;
+  },
+  author(author) {
+    return this.author = author;
+  },
+  genre(genre) {
+    return this.genre = genre;
+  },
+  pageCount(pageCount) {
+    return this.pageCount = pageCount;
+  },
+  publisherID(publisherID) {
+    return this.publisherID = publisherID;
+  },
+  ISBN(ISBN) {
+    return this.ISBN = ISBN;
+  }
+};
+
+// Extrinsic states have been removed. Everything to do with library check-outs will be moved to a manager and as the object data is now segmented, a factory can be used for instantiation.
+
+// Book Factory Singleton
+const BookFactory = (function(){
+  var existingBooks = {};
+  var existingBook;
+
+  console.log(existingBooks)
+  return {
+    createBook(title, author, genre, pageCount, publisherID, ISBN) {
+      existingBook = existingBooks[ISBN];
+      if (!!existingBook) {
+        return existingBook;
+      } else {
+        var book = Object.create(Book2);
+        book.title = title;
+        book.author = author;
+        book.genre = genre;
+        book.pageCount = pageCount;
+        book.publisherID = publisherID;
+        book.ISBN = ISBN;
+
+        existingBooks[ISBN] = book;
+        return book;
+      }
+    }
+  };
+})();
+
+// Book Record Manager Singleton
+const BookRecordManager = (function(){
+  var bookRecordDatabase = {};
+  return {
+    addBookRecord(id, title, author, genre, pageCpunt, publisherID, ISBN,
+      checkoutDate, checkoutMember, dueReturnDate, availability) {
+        var book = BookFactory.createBook(title, author, genre, pageCount, publishderID, ISBN);
+
+        bookRecordDatabase[id] = {
+          checkoutMember: checkoutMember,
+          checkoutDate: checkoutDate,
+          dueReturnDate: dueReturnDate,
+          availability: availability,
+          book: book
+        };
+    },
+    updateCheckoutStatus(bookID, newStatus, checkoutDate, checkoutMember,
+      newReturnDate) {
+        var record = bookRecordDatabase[bookID];
+        record.availability = newStatus;
+        record.checkoutDate = checkoutDate;
+        record.checkoutMember = checkoutMember;
+        record.dueReturnDate = newReturnDate;
+    },
+    extendCheckoutPeriod(bookID, newReturnDate) {
+      bookRecordDatabase[bookID].dueReturnDate = newReturnDate;
+    },
+    isPastDue(bookID) {
+      var currentDate = new Date();
+      return currentDate.getTime() > Date.parse(bookRecordDatabase[bookID].dueReturnDate);
+    }
+  };
+})();
